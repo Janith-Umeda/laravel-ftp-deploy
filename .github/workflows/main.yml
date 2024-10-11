@@ -51,9 +51,10 @@ jobs:
           local-dir: ./  # Local project root
           server-dir: htdocs/  # Remote directory (e.g., /public_html)
           exclude: |
-            .git*
-            node_modules/
-            tests/
-            .env
-            .github/
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/tests/**
+            **/.env**
+            **/.github/**
 
