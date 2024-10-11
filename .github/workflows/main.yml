@@ -1,0 +1,59 @@
+name: Deploy Laravel App to FTP
+
+on:
+  push:
+    branches:
+      - main  # Adjust to your default branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Set up PHP environment (for Laravel)
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'  # Ensure this matches your PHP version
+          extensions: mbstring, bcmath, pdo, pdo_mysql, curl, json, openssl
+          tools: composer
+
+      # Step 3: Install PHP dependencies (Laravel)
+      - name: Install PHP dependencies
+        run: composer install --optimize-autoloader --no-dev
+
+      # Step 4: Set up Node.js environment (for React Breeze)
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'  # Ensure this matches your Node version
+
+      # Step 5: Install Node.js dependencies
+      - name: Install Node.js dependencies
+        run: npm install
+
+      # Step 6: Build the React frontend
+      - name: Build the React frontend
+        run: npm run build
+
+      # Step 7: Upload files to FTP server (including vendor)
+      - name: Deploy to FTP
+        uses: SamKirkland/FTP-Deploy-Action@4.3.0
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: 21
+          local-dir: ./  # Local project root
+          server-dir: /htdocs  # Remote directory (e.g., /public_html)
+          exclude: |
+            .git*
+            node_modules/
+            tests/
+            .env
+            .github/
+
